@@ -1,5 +1,7 @@
 '''
-Fit model to data and investigate the results
+Fit CMM data measurements against detector model and investigate the results
+
+detailed setup go to: https://github.com/nacerh/mvtx/blob/main/README.md
 
 Abdennacer Hamdi, Ho San Ko, Yuan Mei
 '''
@@ -14,7 +16,7 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-import cufflinks as cfl
+# import cufflinks as cfl
 import plotly.offline as py
 import plotly.graph_objects as go
 import plotly.express as px
@@ -36,9 +38,9 @@ parser.add_argument('--xt', default=0.1, type=float, nargs='?', help = 'fit para
 parser.add_argument('--yt', default=0.1, type=float, nargs='?', help = 'fit parameter: yt, default is 0.1')
 parser.add_argument('--zt', default=0.1, type=float, nargs='?', help = 'fit parameter: zt, default is 0.1')
 parser.add_argument('--xt0', default=0.0, type=float, nargs='?', help = 'model translation parameter: xt0, default is 0.0')
-parser.add_argument('--fidList', default=[], type=int, nargs='+', help = 'selected fid receive sigma = 0.0010, and rest sigma = 10000.000')
-parser.add_argument('--pointList', default=[], type=int, nargs='+', help = 'selected point receive sigma = 0.0010, and rest sigma = 10000.000')
-parser.add_argument('--sigmaList', default=[], type=float, nargs='+', help = 'enter sigma value corresponding to fid and point list selected, and rest sigma = 10000.000')
+parser.add_argument('--fidList', default=[], type=int, nargs='+', help = 'selected fid receive sigma = sigmaList')
+parser.add_argument('--pointList', default=[], type=int, nargs='+', help = 'selected point receive sigma = sigmaList')
+parser.add_argument('--sigmaList', default=[], type=float, nargs='+', help = 'enter sigma value corresponding to fid and point list selected in the following order')
 args = parser.parse_args()
 print(args)
 
