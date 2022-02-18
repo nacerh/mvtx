@@ -213,37 +213,33 @@ def plotResults(fit_results_plane_df, fit_results_cylinder_df, figName=""):
     center = np.empty(len(dfs), dtype=float)
 
     for i in range(0, len(dfs)):
-        # print("i = ", i)
-        # print(dfs[i].head(20))
-
         coords = dfs[i][['d_nx', 'd_ny']].to_numpy()
         xc, yc, r, s = cf.least_squares_circle(coords)
         x_center[i] = xc
         y_center[i] = yc
         center[i] = sqrt(xc*xc + yc*yc)
-        # print('The coordinates of the circle : ', xc, yc, r, s)
-        # cf.plot_data_circle(dfs[i]['d_nx'],dfs[i]['d_ny'],xc,yc,r)
+        cmmOffCircle = np.empty(len(dfs[i]), dtype=float)
 
-        plt.figure(facecolor='white')
-        plt.axis('equal')
+        for j in range(0, len(dfs[i])):
+            dnx = dfs[i].iloc[j]['d_nx']
+            dny = dfs[i].iloc[j]['d_ny']
+            cmmOffCircle[j] = 1000 * (r - sqrt((xc-dnx)**2 + (yc-dny)**2))
 
         theta_fit = np.linspace(-pi, pi, 180)
         x_fit = xc + r*np.cos(theta_fit)
         y_fit = yc + r*np.sin(theta_fit)
 
-        # plt.plot(x_fit, y_fit, 'b-' , label="fitted circle", lw=2)
-        plt.plot(x_fit, y_fit, 'r-' , label="fitted circle", lw=2)
-        plt.plot([xc], [yc], 'bD', mec='y', mew=1)
-        plt.xlabel('x (mm)')
-        plt.ylabel('y (mm)')
-        # plot data
-        # plt.scatter(dfs[i].d_nx, dfs[i].d_ny, c=dfs[i].fid, label=f'pin {i}')
-        sns.scatterplot(data=dfs[i], x='d_nx', y='d_ny', hue='fid', palette='dark')
-        plt.legend(loc='best',labelspacing=0.1)
-        plt.grid(True)
-        plt.title('Fit Circle')
-        plt.savefig(f'dxdy_{i}{figName}.pdf')
-        # plt.show()
+        fig_dxdy, axs = plt.subplots(1, 2, figsize=(16,7))
+        sns.scatterplot(data=dfs[i], x='d_nx', y='d_ny', hue='fid', palette='dark', ax=axs[0])
+        axs[0].plot(x_fit, y_fit, 'r-' , label="fitted circle", lw=2)
+        axs[0].plot([xc], [yc], 'bD', mec='y', mew=1)
+        axs[0].set_title('Circle Fit')
+        axs[0].set(xlabel='X (mm)', ylabel='Y (mm)')
+        axs[0].legend(loc='best',labelspacing=0.1)
+        axs[1].plot(np.arange(0, len(dfs[i]), 1), cmmOffCircle, 's')
+        axs[1].set_title('CMM deviation from Circle')
+        axs[1].set(xlabel='Points', ylabel=r'Deviation ($\mu$m)')
+        fig_dxdy.savefig(f'fig_dxdy_{i}{figName}.pdf')
 
     fig_center, axs = plt.subplots(1, 3, figsize=(16,4))
     # axs[0].errorbar(np.arange(0, len(dfs), 1), x_center, yerr=0, fmt='o')
@@ -256,10 +252,8 @@ def plotResults(fit_results_plane_df, fit_results_cylinder_df, figName=""):
     axs[0].set(xlabel='Pin ID', ylabel='x-residual (mm)')
     axs[1].set(xlabel='Pin ID', ylabel='y-residual (mm)')
     axs[2].set(xlabel='Pin ID', ylabel='radius-residual (mm)')
-    fig_center.savefig(f'center{figName}.pdf')
+    fig_center.savefig(f'fig_center{figName}.pdf')
 
-    # dy_gap = np.empty(len(dfs-1), dtype=float)
-    # dy_gap = [y_center[i] - y_center[i+1] for i in range(len(dfs)-1)]
     dy_gap = np.array([abs(y_center[i] - y_center[i+1])*1000 for i in range(len(dfs)-1)])
     fig_dy_gap = plt.figure()
     plt.xlabel("pair Points ID") 
@@ -267,8 +261,6 @@ def plotResults(fit_results_plane_df, fit_results_cylinder_df, figName=""):
     plt.plot(np.arange(0, len(dfs)-1, 1), dy_gap, "ob")
     plt.axhline(y=40, color='r', linestyle='-')
     fig_dy_gap.savefig(f'fig_dy_gap{figName}.pdf')
-    # dy_gap = []
-    # print(dy_gap)
 
     return fig_residuals_plane, fig_yz, fig_center
 
